@@ -1,0 +1,99 @@
+%% 原始信号频谱
+function magplot
+% clc
+% pack
+% clear
+% close all
+% shot=input('shot:');          
+% time1=input('start time:');   
+% time2=input('end time:');     
+shot=80693;
+time1 = 2.85
+time2 = 2.90
+treename='EAST';
+signalname={'_sig=\point_n5'};   
+fft_base=1/1;
+s=size(signalname);
+L_shot=length(shot);
+L_signal=s(2);
+mdsconnect('mds.ipp.ac.cn');
+for i=1:L_shot
+    shot1=shot(i);
+    t1=time1(i);
+    t2=time2(i);
+    mdsopen(treename,shot1);
+   
+    for j=1:L_signal
+        signalname_re=erase(signalname{j},'_sig=\');
+        y=mdsvalue(signalname{j});
+        t=mdsvalue('dim_of(_sig)');
+        index=find(t>=t1&t<=t2);
+        y=y(index);
+        t_temp=t(index);
+        ts=t_temp(2)-t_temp(1);
+        fs=1/ts
+        f_pass_center=[15 35];
+        y_temp=y;
+        if fs>1e6&&fs==1e6
+            n_fs=round(fs/1e6);
+            fftpoint=1024*fft_base*n_fs
+        else
+            n_fs=round(log2(1e6/fs));
+            fftpoint=1024*fft_base/2^n_fs
+        end 
+        g=2*fftpoint;
+        m=0;
+        while (m/2+1)*g<length(y)
+           k=(m*g/2+1):(m/2+1)*g;
+           x1=y_temp(k);           
+           x1=x1-mean(x1);
+           m=m+1;
+           t_3D(m)=mean(t_temp(k));
+          [P(:,m),f]=psd_me(x1,fs,fftpoint); 
+          f=f/10^3;
+        end
+% %             取部分频率。
+%         n_need=find(f>-40&f<40);
+%         f=f(n_need);
+%         P=P(n_need,:);
+        %%
+        figure
+        set(gcf,'unit','normalized','position',[0.01,0.3,0.98,0.6]);
+        imagesc(t_3D,f,log10(P))
+        %          colormap('default');
+         colormap('jet');
+         set(gca,'YDir','normal')   
+         title(['shot=',num2str(shot),'-',signalname_re]);
+         ylim([0, 100])
+    end
+end
+mdsclose
+mdsdisconnect
+end
+
+function [P,f]=psd_me(x,fs,fftpoint)
+%========================
+%calculate the power spectrum density of signal x through
+%        Pxx(f)=<x(f)*x(f)*/N>, <...> represents ensemble average
+%fs is sampling frequency, fftpoint is fft point.
+%x must be a vector. 
+%the returned value P is Pxx(f), f is the frequency. 50% overlap
+%========================
+if nargin~=3
+error('the standard form is [PSD,frequency]=psd_me(signal,sample_frequency,fftpoint)');
+else
+a=length(x);
+L=fix(a/fftpoint);
+m=2*L-1;
+   for k=1:m
+   j=(k-1)*fftpoint/2;
+   p=(j+1):(j+fftpoint);
+   y(1:fftpoint,k)=x(p);
+   end
+   y_fft=fft(y)/fftpoint;
+   y_psd=abs(y_fft).^2;
+   y_psd=mean(y_psd,2);
+   P=fftshift(y_psd);
+   f=[-fftpoint/2:(fftpoint/2-1)]*(fs/fftpoint);
+end
+end

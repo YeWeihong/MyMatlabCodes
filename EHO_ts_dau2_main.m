@@ -1,0 +1,108 @@
+clear;
+% clc;
+Table = readtable("EHO_num.xlsx"); 
+shotnum = Table.shot;
+time1 = Table.t_begin;
+time2 = Table.t_end;
+mdsconnect('202.127.204.12');
+for i = 1:height(Table)
+
+    [t_3D,f_3D,PSD1,PSD2,PSD3,PSD4,freq_inj] = DPRoutput(shotnum(i),time1(i),time2(i));
+    
+    %% ELM
+    mdsopen('east', shotnum(i));
+    % Da数据
+    SignalName = '\dau2';
+    dau2 = mdsvalue(SignalName);
+    tSignal = strcat('dim_of(',SignalName,')');
+    t = mdsvalue(tSignal);
+    % % TS数据
+    % SignalName = '\ts3';
+    % ts = mdsvalue(SignalName);
+    % tSignal = strcat('dim_of(',SignalName,')');
+    % t_ts = mdsvalue(tSignal);
+    % 时间索引
+    [r, c] = find(time1(i) < t & t < time2(i));
+
+    dau2time = t(r);
+    Da = dau2(r);
+    % 
+    % tst = t_ts(r);
+    % ts3 = ts(r);
+
+    if ischar(dau2)
+        ELM1 = 0;
+        ELM1_T=0;
+    else
+        ELM1=zeros(1,floor(length(Da)));
+        ELM1_T=zeros(1,floor(length(Da)));
+        for k=1:length(Da)
+            ELM1(k) = (Da(k)-min(Da))/(max(Da)-min(Da));
+        end
+        % ELM1=Da;
+        ELM1_T=dau2time;
+    end
+
+    %% 绘图
+    shotxx = num2str(shotnum(i));
+    fig = figure;
+    set(fig, 'Position', [-830.2,63.4,528,789.6])
+    % ax(1)=subplot(511);
+    % imagesc(t_3D,f_3D,log10(PSD1));
+    %       colormap('jet');
+    %       set(gca,'YDir','normal');
+    %       hold on;
+    %       title([shotxx 'f=' num2str(freq_inj(1)) 'GHz']);
+    %       ylim(ax(1), [0 100]);
+          
+    % ax(2)=subplot(512);
+    % imagesc(t_3D,f_3D,log10(PSD2));
+    %       colormap('jet');
+    %       set(gca,'YDir','normal');
+    %       hold on;
+    %       title([shotxx 'f=' num2str(freq_inj(2)) 'GHz']);
+    %       ylim(ax(2), [0 100]);
+    
+          
+    ax(3)=subplot(311);
+    imagesc(t_3D,f_3D,log10(PSD3));
+          colormap('jet');
+          set(gca,'YDir','normal');
+          hold on;
+          title([shotxx 'f=' num2str(freq_inj(3)) 'GHz']);
+          ylim(ax(3), [0 100]);
+          
+    ax(4)=subplot(312);
+    imagesc(t_3D,f_3D,log10(PSD4));
+          colormap('jet');
+          set(gca,'YDir','normal');
+          hold on;
+          title([shotxx 'f=' num2str(freq_inj(4)) 'GHz']);
+          linkaxes(ax) ;
+          ylim(ax(4), [0 100]);
+
+    % Da信号
+    ax(5)=subplot(313);
+    plot(ELM1_T, ELM1)
+        title('Da')
+        % hold on;
+        % xlabel('t [s]')
+        ylim(ax(5), [0 1.2]);
+    % ax(6) = subplot(313);
+    % plot(tst, ts3)
+    %     title('ts raw data')
+    %     xlabel('t [s]')
+    %% 保存文件
+    fileNumber = [shotxx '_' num2str(time1(i)) '_' num2str(time2(i))];
+    filepathxx = 'E:\EHO-Da3\';
+    
+    % 构建完整的文件名，包括文件编号和文件扩展名
+    filenamexx = fullfile(filepathxx, [fileNumber '.png']);
+    % 如果路径不存在，创建它
+    if ~exist(filepathxx, 'dir')
+        mkdir(filepathxx);
+    end
+    % 保存当前图形为 PNG 文件
+    saveas(gcf, filenamexx);
+        close all
+end

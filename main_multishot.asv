@@ -1,0 +1,38 @@
+ clear;
+% close all;
+
+%% 读取CSV文件-炮号
+data = readtable('export_file.csv');
+
+% 提取指定列（假设列名为 'ColumnName'）
+% columnData = data.ColumnName;         % 数值列直接转为数组
+% 或
+columnData = data{:, 'Treeshot'};   % 通用提取方式（支持数值/字符）
+
+% 若列索引已知（例如第2列）
+% columnData = data{:, 2};
+
+% 保存为工作区变量（如名为myList）
+myList = columnData;
+shot = myList;
+
+%% 手动输入炮号范围
+% shot = [132043:148211];
+% shot = 79651:80699;
+time1 =4.0;
+time2 =6.0;
+
+% card_name = {'5105A'};
+% card_name = {'O_P1'};
+%  card_name = {'Doppler'};
+
+for i = 1:length(shot)
+    % shotxx=num2str(shot(i));
+    % K_reflfluc_psd_longtime_multishot(shot,time1,time2); 
+    try 
+        K_reflfluc_psd_longtime_multishot(shot(i),time1,time2);    
+    catch ME
+        fprintf('错误发生在数字 %d：\n', shot(i));
+        disp(ME.message); % 显示错误信息
+    end
+end

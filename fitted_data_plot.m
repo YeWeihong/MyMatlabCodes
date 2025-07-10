@@ -1,0 +1,1 @@
+plot(ne_rho2, ne_fit2)
