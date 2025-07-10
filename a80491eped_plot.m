@@ -45,7 +45,13 @@ title(title_str);
 %% experimental
 scatter(exp_pointx, exp_pointy, 'red', 'DisplayName', 'Experimental point');
 %% y3
-cc3 = 0.172;
+
+F = @(cc3) 0.5e-3 * (exp_pointx/cc3)^2 * mu0 * Ipp^2 / polline^2 - exp_pointy;
+cc3_initial_guess = 0.12;
+cc3_solution = fzero(F, cc3_initial_guess);
+fprintf('Solved cc3: %.6f\n', cc3_solution);
+
+cc3 = cc3_solution;
 betap_ped3 = (x2/cc3).^2;
 y3 = 0.5e-3 * betap_ped3 * mu0 * Ipp^2 / polline^2;
 plot(x2, y3, '--',LineWidth=1.5)
