@@ -10,13 +10,13 @@ exp_pointy = 2.46402;
 x1 = width;
 y1 = press;
 p = polyfit(x1, y1, 1);
-a = p(1);  % 斜率
-b = p(2);  % 截距
+a = p(1);  % k
+b = p(2);  % b
 
 fprintf('拟合结果: y = %.4fx + %.4f\n', a, b);
 y_fit = polyval(p, x1);
 
-% 绘制原始数据和拟合直线
+% stability points and stability boundary
 figure();
 plot(x1, y1, 'bo');
 hold on;
