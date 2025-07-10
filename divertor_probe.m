@@ -4,16 +4,16 @@ clear
 % shot=input('the pulse number:');
 % time1=input('the start time:');
 % time2=input('the end time:');
-shot = 80490;
-time1 = 2.6;
-time2 = 3.1;
+shot = 80491;
+time1 = 2.0;
+time2 = 3.5;
 
 fftpoint = 128 * 2;
 %% 信号1
-treename_1='east';
-signalname_1 = '\uois07'; %'\lois07'; %'\hrs05h' point_n1
+treename_1='efit_east';
+signalname_1 = '\Q95'; %'\lois07'; %'\hrs05h' point_n1
 %% filter?
-filter_judge = 1;
+filter_judge = 0;
 %%
 % treename_1='east';
 % signalname_1='\hrs05h';
