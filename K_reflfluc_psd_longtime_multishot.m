@@ -10,6 +10,21 @@ function K_reflfluc_psd_longtime_multishot(shot,time1,time2)
 %%V-P2:  50-75 GHz X-refl. P2@ [61.2, 65.6, 69.2, 73.6] GHz    LO: 58.4 GHz
 %%W-P1:  75-110GHz X-refl. P1@ [79.2, 85.2, 91.8, 96] GHz      LO: 89.4 GHz
 %%W-P2:  75-110GHz X-refl. P2@ [79.2, 85.2, 91.8, 96] GHz      LO: 89.4 GHz
+%% read Da signal
+treename_1='east';
+signalname_1 = '\Q95'; %'\lois07'; %'\hrs05h' point_n1
+%% filter?
+% filter_judge = 0;
+%%
+mdsconnect('mds.ipp.ac.cn');
+%download and choose the data
+mdsopen(treename_1,shot)
+y_signal = mdsvalue(['_sig=' signalname_1]);
+t_signal = mdsvalue('dim_of(_sig)');
+index = find(t_signal>=time1&t_signal<=time2);
+signal1 = y_signal(index);
+t_signal1 = t_signal(index);
+
 %% birdview, P1 is upper and P2 is lower
 shotxx = num2str(shot);
 
@@ -22,7 +37,7 @@ shot2021 = [97423:107851];
 shot2022 = [107960:120623];
 shot2023 = [121675:137931];
 shot2024 = [132043:148211];
-
+shot2025 = [149452:157619];
 %%
 if ismember(shot,shot2018O)
     data_path='X:\reflfluc2\Refl_Fluc_2018\O_20-40';
@@ -55,6 +70,10 @@ elseif ismember(shot, shot2023)
 elseif ismember(shot, shot2024)
     data_path='X:\reflfluc2\Refl_Fluc_2024';
     filepathxx = 'E:\2024EHOlikeshotAMP\';
+    card_name = 'O_P2';
+elseif ismember(shot, shot2025)
+    data_path='X:\reflfluc2\Refl_Fluc_2025\Fluc';
+    filepathxx = 'E:\2025EHOlikeshotAMP\';
     card_name = 'O_P2';
 else
     disp('Shot num error!!')

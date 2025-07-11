@@ -18,7 +18,7 @@ clear;
 
 %% 手动输入炮号范围
 % shot = [132043:148211];
-shot = 126000:126999;
+shot = 156500:156820;
 time1 = 2.5;
 time2 = 4.0;
 
@@ -30,7 +30,7 @@ time2 = 4.0;
 pool = gcp('nocreate');  % 获取当前并行池
 if isempty(pool)
     maxCores = feature('NumCores');
-    parpool(maxCores-1);
+    % parpool(maxCores-1);
 end
 
 if ~isempty(pool)

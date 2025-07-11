@@ -10,8 +10,8 @@ time2 = 3.5;
 
 fftpoint = 128 * 2;
 %% 信号1
-treename_1='efit_east';
-signalname_1 = '\Q95'; %'\lois07'; %'\hrs05h' point_n1
+treename_1='east';
+signalname_1 = '\dau2'; %'\lois07'; %'\hrs05h' point_n1
 %% filter?
 filter_judge = 0;
 %%
@@ -32,6 +32,45 @@ plot(t_signal1, signal1);
 title(signalname_1)
 xlabel('t(s)')
 % ylabel('a.u.')
+%% findpeak
+% 信号寻峰处理
+% 信号参数
+samplingRate = 250e3;  % 采样率 (Hz)
+sampleInterval = 1/samplingRate;  % 采样间隔 (秒)
+
+% 寻峰参数设置（基于时间间隔）
+minPeakTime = 0.001;  % 最小峰间距 (秒)，可根据信号调整
+minPeakHeight = 0.5 * max(abs(signal1));  % 最小峰高阈值
+minPeakProminence = 0.05 * max(abs(signal1));  % 最小峰突出度
+
+% 将时间间隔转换为样本点间隔
+minPeakDistance = round(minPeakTime / sampleInterval);  % 样本点间隔
+
+% 执行寻峰
+[peakValues, peakLocations] = findpeaks(signal1, ...
+                                        'MinPeakHeight', minPeakHeight, ...
+                                        'MinPeakDistance', minPeakDistance, ...
+                                        'MinPeakProminence', minPeakProminence);
+
+% 将索引转换为时间点
+peakTimes = t_signal1(peakLocations);
+
+% 输出寻峰结果
+fprintf('找到 %d 个峰\n', length(peakValues));
+for i = 1:length(peakValues)
+    fprintf('峰 %d: 时间 = %.4f s, 幅值 = %.4f\n', i, peakTimes(i), peakValues(i));
+end
+
+% 可视化寻峰结果
+figure;
+plot(t_signal1, signal1, 'b-', 'LineWidth', 1);
+hold on;
+plot(peakTimes, peakValues, 'ro', 'MarkerSize', 8, 'MarkerFaceColor', 'r');
+title('信号寻峰结果');
+xlabel('时间 (s)');
+ylabel('信号幅值');
+legend('原始信号', '检测到的峰');
+grid on;
 %% 滤波，降噪
 if filter_judge
     y_filt = combined_filter(t_signal1, signal1, 31,31);
