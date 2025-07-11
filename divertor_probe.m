@@ -4,7 +4,7 @@ clear
 % shot=input('the pulse number:');
 % time1=input('the start time:');
 % time2=input('the end time:');
-shot = 80491;
+shot = 804910;
 time1 = 2.0;
 time2 = 3.5;
 
